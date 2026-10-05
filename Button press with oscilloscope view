@@ -1,0 +1,54 @@
+#include "Arduino_LED_Matrix.h" // Fixed: Enclosed header in quotes
+
+ArduinoLEDMatrix matrix;
+int switchPin = 2;       // push button between pin 2 and GND
+int buzzerPin = 3;       // Added: Dedicated pin for the buzzer/piezo
+int builtInLed = LED_BUILTIN;
+bool useMatrix = false;  // toggles between LED types
+
+// frame showing one pixel
+uint32_t singlePixel[3] = { 0x00000001, 0x00000000, 0x00000000 };
+
+void setup() {
+  pinMode(switchPin, INPUT_PULLUP);
+  pinMode(builtInLed, OUTPUT);
+  pinMode(buzzerPin, OUTPUT); // Configure the buzzer pin
+  matrix.begin();
+  Serial.begin(115200);
+  Serial.println("Press button to switch light type"); // Fixed: Added quotation marks
+}
+
+// Timing variables to limit how often the mode switches
+unsigned long lastPress = 0;
+const unsigned long debounceDelay = 200;
+
+void loop() {
+  int switchState = digitalRead(switchPin); // detect button press (LOW when pressed)
+
+  if (switchState == LOW && (millis() - lastPress) > debounceDelay) {
+    useMatrix = !useMatrix; // toggle mode
+    lastPress = millis();
+    
+    // turn everything off before switching
+    digitalWrite(builtInLed, LOW);
+    matrix.clear();
+  }
+
+  // Show light according to mode
+  if (useMatrix) {
+    matrix.loadFrame(singlePixel); // light up one LED on the matrix
+  } else {
+    digitalWrite(builtInLed, HIGH); // light the built-in LED
+  }
+
+  delay(50); // small refresh delay
+
+  // Tone generation on the dedicated buzzer pin
+  if (switchState == LOW) {
+    tone(buzzerPin, 100); // Fixed: Changed from switchPin to buzzerPin
+    Serial.println("100hz"); // Fixed: Added quotation marks
+  } else {
+    tone(buzzerPin, 200); // Fixed: Changed from switchPin to buzzerPin
+    Serial.println("200hz"); // Fixed: Added quotation marks
+  }
+}
