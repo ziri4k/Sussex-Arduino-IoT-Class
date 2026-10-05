@@ -1,0 +1,31 @@
+void setup() {
+  // put your setup code here, to run once:
+  //initialize digital pin led_builtlin as output
+  pinMode(LED_BUILTIN,OUTPUT);
+  //pinMode(TX_LED,OUTPUT);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  char i = 0;
+  while(i<10)
+  {
+    digitalWrite(LED_BUILTIN,1);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 0);
+    delay(100);
+    i= i+1;
+  }// first while loop
+
+while(i>0)
+{//seconfd while loop to blink slowly
+digitalWrite(LED_BUILTIN,1);
+delay(1000);
+digitalWrite(LED_BUILTIN, 0);
+delay(1000);
+i=i-1;
+
+}  
+
+}
