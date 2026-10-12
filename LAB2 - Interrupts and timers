@@ -1,0 +1,29 @@
+// UNO R4 WiFi — Button Interrupt: toggle LED
+const uint8_t PIN_A = 2;
+volatile bool aFlag = false;
+unsigned long lastA = 0;
+const unsigned long DEBOUNCE_MS = 50;
+bool ledOn = false;
+void onA() { aFlag = true; }
+
+void setup() {
+Serial.begin(115200);
+pinMode(LED_BUILTIN, OUTPUT);
+pinMode(PIN_A, INPUT);
+attachInterrupt(digitalPinToInterrupt(PIN_A), onA, FALLING);
+Serial.println("Button A -> toggle LED on press");
+}
+void loop() {
+unsigned long now = millis();
+if (aFlag)
+{
+aFlag = false;
+if (now - lastA > DEBOUNCE_MS)
+{
+lastA = now;
+ledOn = !ledOn;
+digitalWrite(LED_BUILTIN, ledOn);
+//Serial.println(ledOn ? "LED ON" : "LED OFF");
+}
+}
+}
