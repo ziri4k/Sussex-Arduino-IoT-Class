@@ -1,4 +1,4 @@
-// UNO R4 WiFi — Button Interrupt: toggle LED
+// Coding 1  UNO R4 WiFi — Button Interrupt: toggle LED
 const uint8_t PIN_A = 2;
 volatile bool aFlag = false;
 unsigned long lastA = 0;
@@ -26,4 +26,105 @@ digitalWrite(LED_BUILTIN, ledOn);
 //Serial.println(ledOn ? "LED ON" : "LED OFF");
 }
 }
+}
+
+
+//cODING 2 There are two ISRs, from the same push-button input. One toggles LED1 on a rising interrupt
+edge, and the other toggles LED2 (any LED of your choice) on a falling edge
+ - 
+// UNO R4 WiFi — Button: rising toggles LED1, falling toggles LED2
+const uint8_t PIN_A      = 2;        // push-button input
+const uint8_t PIN_LED1   = LED_BUILTIN; // LED toggled on RISING
+const uint8_t PIN_LED2   = 3;        // LED toggled on FALLING (use any free digital pin)
+
+volatile bool risingFlag  = false;
+volatile bool fallingFlag = false;
+volatile uint8_t lastPinState = HIGH; // track previous state inside ISR
+
+unsigned long lastRising  = 0;
+unsigned long lastFalling = 0;
+const unsigned long DEBOUNCE_MS = 50;
+
+bool led1On = false;
+bool led2On = false;
+
+// single ISR (attached with CHANGE) detects edge and sets flags
+void onA_change() {
+  uint8_t state = digitalRead(PIN_A);
+  if (state == HIGH && lastPinState == LOW) {
+    risingFlag = true;
+  } else if (state == LOW && lastPinState == HIGH) {
+    fallingFlag = true;
+  }
+  lastPinState = state;
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(PIN_LED1, OUTPUT);
+  pinMode(PIN_LED2, OUTPUT);
+
+  pinMode(PIN_A, INPUT); // or INPUT_PULLUP (see note below)
+  // read initial state so ISR can detect first edge correctly
+  lastPinState = digitalRead(PIN_A);
+
+  // listen for both edges, ISR will decide which edge occurred
+  attachInterrupt(digitalPinToInterrupt(PIN_A), onA_change, CHANGE);
+
+  Serial.println("Button A: rising -> toggle LED1, falling -> toggle LED2");
+}
+
+void loop() {
+  unsigned long now = millis();
+
+  if (risingFlag) {
+    // clear flag quickly (avoid race with ISR)
+    risingFlag = false;
+    if (now - lastRising > DEBOUNCE_MS) {
+      lastRising = now;
+      led1On = !led1On;
+      digitalWrite(PIN_LED1, led1On);
+      // Serial.println(led1On ? "LED1 ON" : "LED1 OFF");
+    }
+  }
+
+  if (fallingFlag) {
+    fallingFlag = false;
+    if (now - lastFalling > DEBOUNCE_MS) {
+      lastFalling = now;
+      led2On = !led2On;
+      digitalWrite(PIN_LED2, led2On);
+      // Serial.println(led2On ? "LED2 ON" : "LED2 OFF");
+    }
+  }
+
+
+}
+
+#coding 3 Observe the flash changes of LEDs by modifying different frequencies. Use different timers to
+control different LEDs, or try to use different timers at the same time to set different
+frequencies
+#include "RTC.h"
+volatile bool irqFlag = false;
+volatile bool ledState = false;
+const int led = LED_BUILTIN;
+void setup() {
+pinMode(led, OUTPUT);
+// Initialize the RTC
+RTC.begin();
+RTCTime mytime(22, Month::SEPTEMBER, 2025, 13, 37, 00, DayOfWeek::MONDAY,
+SaveLight::SAVING_TIME_ACTIVE);//you have to initialize RTC, any random time is fine
+RTC.setTime(mytime);
+RTC.setPeriodicCallback(onLED, Period::N128_TIMES_EVERY_SEC);
+}
+//Figure 2 Layout of Modulino button module
+void loop(){
+if(irqFlag){
+ledState = !ledState;
+digitalWrite(LED_BUILTIN, ledState);
+irqFlag = false;
+}
+}
+void onLED(){
+irqFlag = true;
 }
