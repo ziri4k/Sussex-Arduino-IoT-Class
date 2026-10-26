@@ -18,4 +18,48 @@ Serial.println(analogRead(pin)); ///read a pin value of operating voltage +5v in
 }
 }
 
+//DISTANCE AND LED
+#include <Arduino_Modulino.h>
+ModulinoDistance distance;
 
+void setup() {
+pinMode(LED_BUILTIN, OUTPUT);
+Serial.begin(115200);
+while (!Serial) {
+// Wait for the Serial Monitor to open.
+}
+// Initialise the Qwiic bus on the UNO R4 WiFi.
+Modulino.begin(Wire1);
+if (!distance.begin()) {
+Serial.println("Distance sensor initialisation failed.");
+while (true) {
+delay(100);
+}
+}
+Serial.println("Distance sensor ready.");
+}
+void loop() {
+// Update the reading and check its validity.
+if (distance.available()) {
+float distanceMm = distance.get();
+Serial.print("Distance: ");
+Serial.print(distanceMm, 0);
+Serial.println(" mm");
+
+if (distanceMm < 150) {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+}
+  else{
+    
+  digitalWrite(LED_BUILTIN,LOW);
+  delay(1000);
+  }
+
+} else {
+Serial.println("No valid distance reading.");
+}
+delay(200);
+
+
+} 
