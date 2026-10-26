@@ -1,3 +1,4 @@
+//SERIAL MONITOR TESTS
 // UNO R4 WiFi — UART
 int pin =A0;
 void setup() {
