@@ -1,1 +1,21 @@
+// UNO R4 WiFi — UART
+int pin =A0;
+void setup() {
+Serial.begin(9600);
+pinMode(pin, INPUT);
+}
+void loop() {
+Serial.println("Enter data:");
+while (Serial.available() == 0);
+String teststr = Serial.readString(); //read until timeout
+teststr.trim(); // remove any \r \n whitespace at the end of the String
+if (teststr == "red") {
+//4 RECIEVED TEXT AND RESULT
+Serial.println(teststr);  
+Serial.println("A primary color");
+} else {
+Serial.println(analogRead(pin)); ///read a pin value of operating voltage +5v into integer between 0 and 1023
+}
+}
+
 
