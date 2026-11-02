@@ -61,6 +61,112 @@ if (distanceMm < 150) {
 Serial.println("No valid distance reading.");
 }
 delay(200);
+}
 
 
-} 
+//buzzer code tempelate
+
+#include <Modulino.h>
+
+ModulinoBuzzer buzzer;
+
+int frequency = 440;  // Frequency of the tone in Hz
+int duration = 1000;
+
+void setup(){
+  Modulino.begin();
+  buzzer.begin();
+}
+
+void loop (){
+  buzzer.tone(frequecy,duration)
+  delay(1000)
+  buzzer.tone(0,duration)
+  delay(1000)
+}
+
+//knob code temp
+#include <Modulino.h>
+
+ModulinoKnob knob;
+
+void setup() {
+   Serial.begin(9600);
+   Modulino.begin();
+   knob.begin();
+}
+
+void loop(){
+   int position = knob.get();
+   bool click = knob.isPressed();
+
+   Serial.print("Current position is: ");
+   Serial.println(position);
+
+   if(click){
+      Serial.println("Clicked!");
+   }
+}
+
+//knob second code
+#include <Modulino.h>
+
+ModulinoKnob knob;
+
+// Pins & Timing Variables
+const int ledPin = LED_BUILTIN; // Uses the board's built-in LED
+unsigned long previousMillis = 0; 
+int ledState = LOW;             // Track whether LED is ON or OFF
+
+// Knob Boundary Settings
+int lastPosition = -999;        // Used to track if the knob actually moved
+
+void setup() {
+   Serial.begin(9600);
+   Modulino.begin();
+   knob.begin();
+   
+   pinMode(ledPin, OUTPUT);     // Configure the built-in LED pin as an output
+}
+
+void loop() {
+   // 1. Read the raw knob position
+   int position = knob.get();
+   
+   // Constrain the raw knob values so it doesn't rotate infinitely into crazy numbers
+   // Assuming a typical range, let's limit it between 0 and 100 steps
+   if (position < 0) {
+      knob.set(0);
+      position = 0;
+   } else if (position > 100) {
+      knob.set(100);
+      position = 100;
+   }
+
+   // 2. Map the position (0 to 100) to our target interval (100ms to 1000ms)
+   int interval = map(position, 0, 100, 100, 1000);
+
+   // 3. Only print to Serial Monitor if the interval actually changes
+   // This keeps the serial screen clean and readable!
+   if (position != lastPosition) {
+      Serial.print("Selected Interval: ");
+      Serial.print(interval);
+      Serial.println(" ms");
+      lastPosition = position;
+   }
+
+   // 4. Non-blocking LED Toggle using millis()
+   unsigned long currentMillis = millis();
+   if (currentMillis - previousMillis >= (unsigned long)interval) {
+      previousMillis = currentMillis; // Save the last time the LED blinked
+
+      // If the LED is off turn it on and vice-versa:
+      if (ledState == LOW) {
+         ledState = HIGH;
+      } else {
+         ledState = LOW;
+      }
+
+      digitalWrite(ledPin, ledState); // Update the physical LED
+   }
+}
