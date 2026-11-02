@@ -1,3 +1,23 @@
+//1a Change the program to alternate between duty cycles of 20% and 80% every two seconds, and verify the output using the oscilloscope
+int Pin_PWM = 3; // Connect to pin ~D3
+
+void setup() {
+  pinMode(Pin_PWM, OUTPUT);
+  analogWriteResolution(8); // 0..255 resolution
+}
+
+void loop() {
+  // 20% Duty Cycle: 255 * 0.20 = 51
+  analogWrite(Pin_PWM, 51); 
+  delay(2000); // Wait for 2 seconds (2000 milliseconds)
+
+  // 80% Duty Cycle: 255 * 0.80 = 204
+  analogWrite(Pin_PWM, 204); 
+  delay(2000); // Wait for 2 seconds (2000 milliseconds)
+}
+//1b Change the program to gradually increase the PWM output value from 0 to 255 and then decrease it to 0, repeatedly. Observe the changing pulse width on the oscilloscope
+
+
 //SERIAL MONITOR TESTS
 // UNO R4 WiFi — UART
 int pin =A0;
