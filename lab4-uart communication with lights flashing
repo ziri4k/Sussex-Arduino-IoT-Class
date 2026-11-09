@@ -1,0 +1,40 @@
+String requestLine = "";
+void setup() {
+Serial.begin(9600);
+Serial1.begin(9600);
+pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+// Read a request from UNO A without blocking.
+while (Serial1.available() > 0) {
+char received = Serial1.read();
+// Ignore carriage returns.
+if (received == '\r') {
+continue;
+}
+// A newline marks the end of a request.
+if (received == '\n') {
+if (requestLine.length() > 0) {
+Serial.print("Received from UNO A: ");
+Serial.println(requestLine);
+if (requestLine == "ON") {
+Serial1.println("IT'S ON");
+digitalWrite(LED_BUILTIN, HIGH);
+Serial.println("Sent to UNO A: ON");
+}
+else if (requestLine == "OFF") {
+Serial1.println("IT'S OFF");
+digitalWrite(LED_BUILTIN, LOW);
+Serial.println("Sent to UNO A: OFF"); 
+}
+ else {
+Serial.println("Unknown request.");
+}
+}
+requestLine = "";
+} else {
+requestLine += received;
+}
+}
+}
